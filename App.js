@@ -4,6 +4,9 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet } from "react-native";
+
+// screens
 import HomeScreen from "./containers/HomeScreen";
 import ProfileScreen from "./containers/ProfileScreen";
 import SignInScreen from "./containers/SignInScreen";
@@ -11,21 +14,39 @@ import SignUpScreen from "./containers/SignUpScreen";
 import SettingsScreen from "./containers/SettingsScreen";
 import SplashScreen from "./containers/SplashScreen";
 
+// composants
+import Logo from "./components/Logo";
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   const setToken = async (token) => {
     if (token) {
       await AsyncStorage.setItem("userToken", token);
+      console.log("token storage >>>", token);
     } else {
       await AsyncStorage.removeItem("userToken");
+      ("token storage >>> ko");
     }
 
     setUserToken(token);
+  };
+
+  const setId = async (id) => {
+    if (id) {
+      await AsyncStorage.setItem("userId", id);
+      console.log("id storage >>>", id);
+    } else {
+      await AsyncStorage.removeItem("userId");
+      ("id storage >>> ko");
+    }
+
+    setUserId(id);
   };
 
   useEffect(() => {
@@ -56,10 +77,10 @@ export default function App() {
           // No token found, user isn't signed in
           <>
             <Stack.Screen name="SignIn">
-              {() => <SignInScreen setUserToken={setUserToken} />}
+              {() => <SignInScreen setToken={setToken} setId={setId} />}
             </Stack.Screen>
             <Stack.Screen name="SignUp">
-              {() => <SignUpScreen setUserToken={setUserToken} />}
+              {() => <SignUpScreen setToken={setToken} setId={setId} />}
             </Stack.Screen>
           </>
         ) : (
@@ -83,13 +104,21 @@ export default function App() {
                   }}
                 >
                   {() => (
-                    <Stack.Navigator>
+                    <Stack.Navigator
+                      screenOptions={{
+                        headerTitle: (arg) => <Logo />,
+                      }}
+                    >
                       <Stack.Screen
                         name="Home"
                         options={{
                           title: "My App",
-                          headerStyle: { backgroundColor: "red" },
-                          headerTitleStyle: { color: "white" },
+                          headerStyle: {
+                            backgroundColor: "white",
+                            borderBottomColor: "#eeeeee",
+                            shadowColor: "#eeeeee",
+                          },
+                          headerTitleStyle: { color: "black" },
                         }}
                       >
                         {() => <HomeScreen />}
@@ -101,18 +130,18 @@ export default function App() {
                           title: "User Profile",
                         }}
                       >
-                        {() => <ProfileScreen />}
+                        {({ props }) => <ProfileScreen {...props} />}
                       </Stack.Screen>
                     </Stack.Navigator>
                   )}
                 </Tab.Screen>
                 <Tab.Screen
-                  name="TabSettings"
+                  name="TabProfile"
                   options={{
-                    tabBarLabel: "Settings",
+                    tabBarLabel: "My profile",
                     tabBarIcon: ({ color, size }) => (
                       <Ionicons
-                        name={"ios-options"}
+                        name={"person-outline"}
                         size={size}
                         color={color}
                       />
@@ -120,14 +149,18 @@ export default function App() {
                   }}
                 >
                   {() => (
-                    <Stack.Navigator>
+                    <Stack.Navigator
+                      screenOptions={{
+                        headerTitle: (arg) => <Logo />,
+                      }}
+                    >
                       <Stack.Screen
                         name="Settings"
                         options={{
-                          title: "Settings",
+                          title: "Profile",
                         }}
                       >
-                        {() => <SettingsScreen setToken={setToken} />}
+                        {() => <ProfileScreen setToken={setToken} />}
                       </Stack.Screen>
                     </Stack.Navigator>
                   )}
@@ -140,3 +173,9 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});

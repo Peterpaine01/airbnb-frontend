@@ -3,7 +3,7 @@ import axios from "axios";
 import { useState } from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-export default function SignUpScreen({ setUserToken }) {
+export default function SignUpScreen({ setToken }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -32,7 +32,8 @@ export default function SignUpScreen({ setUserToken }) {
           );
           setErrorMessage("");
           // J'enregistre le token dans mon state
-          setUserToken(data.token);
+          setToken(data.token);
+          setId(data._id);
           alert("Account successfully created !");
 
           // console.log(token);

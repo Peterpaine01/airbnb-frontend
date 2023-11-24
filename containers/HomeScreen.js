@@ -6,6 +6,7 @@ import {
   FlatList,
   Image,
   useWindowDimensions,
+  ActivityIndicator,
 } from "react-native";
 import axios from "axios";
 
@@ -19,7 +20,7 @@ const HomeScreen = ({ navigation }) => {
         const response = await axios.get(
           `https://lereacteur-bootcamp-api.herokuapp.com/api/airbnb/rooms`
         );
-        console.log(response.data);
+        // console.log(response.data);
         setData(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -30,13 +31,13 @@ const HomeScreen = ({ navigation }) => {
     fetchData();
   }, []);
 
+  // Utilisation de la fonction 'useStyle' qui utilise le hook "useWindowDimensions"
+  const styles = useStyle();
+
   if (isLoading === true) {
     // We haven't finished checking for the token yet
     return null;
   }
-
-  // Utilisation de la fonction 'useStyle' qui utilise le hook "useWindowDimensions"
-  const styles = useStyle();
 
   return (
     <View>
@@ -46,11 +47,19 @@ const HomeScreen = ({ navigation }) => {
         keyExtractor={(item) => item._id}
         //  Attention  👇 destructuration de la clé 'item'
         renderItem={({ item }) => {
-          console.log(item.user.account.photo.url);
+          let rating = [];
+          for (let i = 0; i < item.ratingValue; i++) {
+            rating.push(i + 1);
+          }
+          // console.log(rating);
+
           return (
-            <View styles={styles.article}>
+            <View style={styles.article}>
               <View>
-                <Image src={item.photos[0].url} styles={styles.images} />
+                <Image
+                  source={{ uri: `${item.photos[0].url}` }}
+                  style={styles.images}
+                />
                 <View>
                   <Text numberOfLines={1}>{item.price} €</Text>
                 </View>
@@ -58,10 +67,19 @@ const HomeScreen = ({ navigation }) => {
               <View>
                 <View>
                   <Text>{item.title}</Text>
+                  <View>
+                    <View>
+                      {rating.map((star) => {
+                        return <Text>*</Text>;
+                      })}
+                    </View>
+
+                    <Text>{item.reviews} reviews</Text>
+                  </View>
                 </View>
                 <Image
-                  src={item.user.account.photo.url}
-                  styles={styles.images}
+                  source={{ uri: `${item.user.account.photo.url}` }}
+                  style={styles.images}
                 />
               </View>
             </View>
@@ -97,15 +115,12 @@ const useStyle = () => {
     // },
     article: {
       width: "100%",
-      borderBlockColor: "yellow",
-      borderWidth: 2,
+      display: "flex",
     },
     images: {
       width: 150,
       height: 120,
       resizeMode: "cover",
-      borderBlockColor: "red",
-      borderWidth: 2,
     },
   });
 
