@@ -1,12 +1,21 @@
 import React from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 
-const CustomInput = ({ value, setValue, placeholder, multiline, lines }) => {
+const CustomInput = ({
+  value,
+  setValue,
+  placeholder,
+  multiline,
+  lines,
+  type,
+  secureTextEntry,
+}) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, styles[`container_${type}`]]}>
       <TextInput
         value={value}
         onChangeText={setValue}
+        secureTextEntry={secureTextEntry}
         placeholder={placeholder}
         style={styles.input}
         multiline={multiline}
@@ -19,14 +28,20 @@ const CustomInput = ({ value, setValue, placeholder, multiline, lines }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
-    borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 5,
+    borderColor: "#FF5A5E",
     width: "100%",
-    paddingHorizontal: 10,
+    paddingVertical: 10,
     marginVertical: 5,
+    marginBottom: 20,
   },
-  input: {},
+  container_textarea: {
+    borderWidth: 1,
+    padding: 10,
+    minHeight: 100,
+  },
+  container_input: {
+    borderBottomWidth: 1,
+  },
 });
 
 export default CustomInput;

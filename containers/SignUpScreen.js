@@ -1,9 +1,24 @@
-import { Button, Text, TextInput, View, TouchableOpacity } from "react-native";
+import {
+  Button,
+  Text,
+  TextInput,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+} from "react-native";
 import axios from "axios";
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/core";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Constants from "expo-constants";
+
+// components
+import CustomInput from "../components/CustomInput";
+import CustomButton from "../components/CustomButton";
 
 export default function SignUpScreen({ setToken }) {
+  const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -36,7 +51,7 @@ export default function SignUpScreen({ setToken }) {
           setId(data._id);
           alert("Account successfully created !");
 
-          // console.log(token);
+          console.log(data._id);
         } catch (error) {
           // le '?' permet de vérifier si la clé existe, si non le reste du chemin n'est pas lu
           console.log("catch>>", error.response?.data?.error);
@@ -56,7 +71,95 @@ export default function SignUpScreen({ setToken }) {
   };
 
   return (
-    <KeyboardAwareScrollView extraScrollHeight={10}>
+    <KeyboardAwareScrollView
+      extraScrollHeight={15}
+      contentContainerStyle={styles.container}
+    >
+      <View style={styles.section}>
+        <Image style={styles.logo} source={require("../assets/airbnb.png")} />
+        <Text style={styles.title}>Sign up</Text>
+      </View>
+      <View style={styles.section}>
+        <CustomInput
+          placeholder="email"
+          value={email}
+          setValue={(text) => {
+            setErrorMessage("");
+            setEmail(text);
+          }}
+          multiline={false}
+          lines={1}
+          type="input"
+        />
+        <CustomInput
+          placeholder="username"
+          value={username}
+          setValue={(text) => {
+            setErrorMessage("");
+            setUsername(text);
+          }}
+          multiline={false}
+          lines={1}
+          type="input"
+        />
+        <CustomInput
+          placeholder="Describ yourself in a few words..."
+          value={description}
+          setValue={(text) => {
+            setErrorMessage("");
+            setDescription(text);
+          }}
+          multiline={true}
+          lines={5}
+          type="textarea"
+        />
+        <CustomInput
+          placeholder="password"
+          secureTextEntry={true}
+          value={password}
+          setValue={(text) => {
+            setErrorMessage("");
+            setPassword(text);
+          }}
+          multiline={false}
+          lines={1}
+          type="input"
+        />
+
+        <CustomInput
+          placeholder="confirm password"
+          secureTextEntry={true}
+          value={confirmPassword}
+          setValue={(text) => {
+            setErrorMessage("");
+            setConfirmPassword(text);
+          }}
+          multiline={false}
+          lines={1}
+          type="input"
+        />
+      </View>
+
+      <View style={styles.section}>
+        {errorMessage && <Text style={styles.error}>{errorMessage}</Text>}
+
+        <CustomButton
+          onPress={async () => {
+            handleSignup();
+          }}
+          text="Sign up"
+          type="primary"
+        />
+        <TouchableOpacity
+          style={styles.container_link}
+          onPress={() => {
+            navigation.navigate("SignIn");
+          }}
+        >
+          <Text style={styles.link}>Already have an account? Sign in</Text>
+        </TouchableOpacity>
+      </View>
+
       <View>
         <TextInput
           placeholder="Email"
@@ -119,3 +222,44 @@ export default function SignUpScreen({ setToken }) {
     </KeyboardAwareScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    padding: 40,
+    backgroundColor: "white",
+    paddingTop: Constants.statusBarHeight,
+    gap: 40,
+    alignItems: "center",
+    justifyContent: "space-between",
+    display: "flex",
+  },
+
+  section: {
+    width: "100%",
+    alignItems: "center",
+  },
+  container_link: {
+    marginVertical: 10,
+  },
+  link: {
+    color: "grey",
+  },
+  error: {
+    color: "#FF5A5E",
+    marginVertical: 10,
+  },
+  logo: {
+    width: "40%",
+    maxWidth: 300,
+    height: 100,
+    marginTop: 50,
+    marginBottom: 20,
+    resizeMode: "cover",
+  },
+  title: {
+    fontSize: 28,
+    color: "grey",
+    fontWeight: 700,
+  },
+});

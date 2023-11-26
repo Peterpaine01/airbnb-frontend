@@ -11,8 +11,8 @@ import HomeScreen from "./containers/HomeScreen";
 import ProfileScreen from "./containers/ProfileScreen";
 import SignInScreen from "./containers/SignInScreen";
 import SignUpScreen from "./containers/SignUpScreen";
-import SettingsScreen from "./containers/SettingsScreen";
-import SplashScreen from "./containers/SplashScreen";
+import RoomScreen from "./containers/RoomScreen";
+import MapScreen from "./containers/MapScreen";
 
 // composants
 import Logo from "./components/Logo";
@@ -72,7 +72,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         {userToken === null ? (
           // No token found, user isn't signed in
           <>
@@ -90,7 +90,7 @@ export default function App() {
               <Tab.Navigator
                 screenOptions={{
                   headerShown: false,
-                  tabBarActiveTintColor: "tomato",
+                  tabBarActiveTintColor: "#FF5A5E",
                   tabBarInactiveTintColor: "gray",
                 }}
               >
@@ -112,7 +112,7 @@ export default function App() {
                       <Stack.Screen
                         name="Home"
                         options={{
-                          title: "My App",
+                          title: "Home",
                           headerStyle: {
                             backgroundColor: "white",
                             borderBottomColor: "#eeeeee",
@@ -121,16 +121,48 @@ export default function App() {
                           headerTitleStyle: { color: "black" },
                         }}
                       >
-                        {() => <HomeScreen />}
+                        {(props) => <HomeScreen {...props} />}
                       </Stack.Screen>
 
                       <Stack.Screen
-                        name="Profile"
+                        name="Room"
                         options={{
-                          title: "User Profile",
+                          title: "Room",
                         }}
                       >
-                        {({ props }) => <ProfileScreen {...props} />}
+                        {(props) => <RoomScreen {...props} />}
+                      </Stack.Screen>
+                    </Stack.Navigator>
+                  )}
+                </Tab.Screen>
+                <Tab.Screen
+                  name="TabAroundMe"
+                  options={{
+                    tabBarLabel: "Around me",
+                    tabBarIcon: ({ color, size }) => (
+                      <Ionicons name={"ios-pin"} size={size} color={color} />
+                    ),
+                  }}
+                >
+                  {() => (
+                    <Stack.Navigator
+                      screenOptions={{
+                        headerTitle: (arg) => <Logo />,
+                      }}
+                    >
+                      <Stack.Screen
+                        name="Map"
+                        options={{
+                          title: "Home",
+                          headerStyle: {
+                            backgroundColor: "white",
+                            borderBottomColor: "#eeeeee",
+                            shadowColor: "#eeeeee",
+                          },
+                          headerTitleStyle: { color: "black" },
+                        }}
+                      >
+                        {(props) => <MapScreen {...props} />}
                       </Stack.Screen>
                     </Stack.Navigator>
                   )}
@@ -155,12 +187,14 @@ export default function App() {
                       }}
                     >
                       <Stack.Screen
-                        name="Settings"
+                        name="Profile"
                         options={{
                           title: "Profile",
                         }}
                       >
-                        {() => <ProfileScreen setToken={setToken} />}
+                        {() => (
+                          <ProfileScreen setToken={setToken} setId={setId} />
+                        )}
                       </Stack.Screen>
                     </Stack.Navigator>
                   )}
@@ -176,6 +210,6 @@ export default function App() {
 
 const styles = StyleSheet.create({
   root: {
-    flex: 1,
+    maincolor: "#FF5A5E",
   },
 });

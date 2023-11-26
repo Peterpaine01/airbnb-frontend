@@ -7,11 +7,14 @@ import {
   Image,
   useWindowDimensions,
   ActivityIndicator,
+  ImageBackground,
+  TouchableOpacity,
 } from "react-native";
 import axios from "axios";
+import { AntDesign } from "@expo/vector-icons";
 
 const HomeScreen = ({ navigation }) => {
-  const [data, setData] = useState();
+  const [roomsList, setRoomsList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -21,7 +24,7 @@ const HomeScreen = ({ navigation }) => {
           `https://lereacteur-bootcamp-api.herokuapp.com/api/airbnb/rooms`
         );
         // console.log(response.data);
-        setData(response.data);
+        setRoomsList(response.data);
         setIsLoading(false);
       } catch (error) {
         console.log(error.message);
@@ -34,65 +37,73 @@ const HomeScreen = ({ navigation }) => {
   // Utilisation de la fonction 'useStyle' qui utilise le hook "useWindowDimensions"
   const styles = useStyle();
 
+  const displayStars = (rate) => {
+    // Créer un tableau vide
+    const tab = [];
+
+    // faire une boucle qui tourne 5 fois
+    for (let i = 1; i <= 5; i++) {
+      // A chaque tour, si le numéro du tour est inférieur ou égal au score => j'ajoute au tableau une étoile jaune sinon une étoile grise
+      if (i <= rate) {
+        tab.push(<AntDesign name="star" size={20} color="#FFB000" key={i} />);
+      } else {
+        tab.push(<AntDesign name="star" size={20} color="#cccccc" key={i} />);
+      }
+    }
+
+    // Retourner le tableau
+    return tab;
+  };
+
   if (isLoading === true) {
     // We haven't finished checking for the token yet
-    return null;
+    return <ActivityIndicator />;
   }
 
   return (
-    <View>
+    <View style={styles.container}>
       {/* Afficher les éléments d'un tableau */}
       <FlatList
-        data={data}
-        keyExtractor={(item) => item._id}
+        data={roomsList}
+        keyExtractor={(room) => room._id}
         //  Attention  👇 destructuration de la clé 'item'
         renderItem={({ item }) => {
-          let rating = [];
-          for (let i = 0; i < item.ratingValue; i++) {
-            rating.push(i + 1);
-          }
-          // console.log(rating);
-
           return (
-            <View style={styles.article}>
-              <View>
-                <Image
-                  source={{ uri: `${item.photos[0].url}` }}
-                  style={styles.images}
-                />
-                <View>
-                  <Text numberOfLines={1}>{item.price} €</Text>
-                </View>
-              </View>
-              <View>
-                <View>
-                  <Text>{item.title}</Text>
-                  <View>
-                    <View>
-                      {rating.map((star) => {
-                        return <Text>*</Text>;
-                      })}
+            <TouchableOpacity
+              style={styles.article}
+              onPress={() => {
+                navigation.navigate("Room", { id: item._id });
+              }}
+            >
+              {/* Image en background */}
+              <ImageBackground
+                source={{ uri: item.photos[0].url }}
+                style={styles.image}
+              >
+                <Text style={styles.price}>{item.price} €</Text>
+              </ImageBackground>
+              <View style={styles.flexBottom}>
+                <View style={styles.left}>
+                  <Text style={styles.title} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                  <View style={styles.flexBottom}>
+                    <View style={styles.flexRating}>
+                      {/* Afficher les étoiles : la fonction retourne un tableau contenant les icônes */}
+                      {displayStars(item.ratingValue)}
                     </View>
 
-                    <Text>{item.reviews} reviews</Text>
+                    <Text style={styles.review}>{item.reviews} reviews</Text>
                   </View>
                 </View>
                 <Image
                   source={{ uri: `${item.user.account.photo.url}` }}
-                  style={styles.images}
+                  style={styles.avatar}
                 />
               </View>
-            </View>
+            </TouchableOpacity>
           );
         }}
-        // -- Orientation horizontal
-        // horizontal
-        // // -- Ajouter un footer
-        // ListFooterComponent={() => <Text>Je suis un footer</Text>}
-        // // -- Ajouter un header
-        // ListHeaderComponent={() => <Text>Je suis un header</Text>}
-        // // -- Ajouter un séparateur entre chaque élément
-        // ItemSeparatorComponent={() => <Text>-------------------</Text>}
       />
     </View>
   );
@@ -106,21 +117,68 @@ const useStyle = () => {
   // const { height, width } = useWindowDimensions();
 
   const styles = StyleSheet.create({
-    // input: {
-    //   borderWidth: 1,
-    //   height: 30,
-    //   marginVertical: 30,
-    //   padding: 10,
-    //   width: width - 40,
-    // },
+    container: {
+      width: "100%",
+      padding: 20,
+      justifyContent: "center",
+      backgroundColor: "white",
+    },
     article: {
       width: "100%",
       display: "flex",
+      borderBottomWidth: 1,
+      borderColor: "#cccccc",
+      marginBottom: 20,
+      paddingBottom: 5,
     },
-    images: {
-      width: 150,
-      height: 120,
+    image: {
+      width: "100%",
+      height: 180,
       resizeMode: "cover",
+      marginBottom: 20,
+      alignItems: "flex-start",
+      justifyContent: "flex-end",
+    },
+    flexBottom: {
+      display: "flex",
+      justifyContent: "flex-start",
+      flexDirection: "row",
+      gap: 20,
+      alignItems: "center",
+    },
+    flexRating: {
+      display: "flex",
+      justifyContent: "flex-start",
+      flexDirection: "row",
+      gap: 5,
+    },
+    avatar: {
+      width: 80,
+      height: 80,
+      borderRadius: "100%",
+    },
+    left: {
+      flex: 2,
+      display: "flex",
+      justifyContent: "space-between",
+      gap: 20,
+      marginVertical: 15,
+    },
+    title: {
+      fontSize: 18,
+    },
+    review: {
+      paddingTop: 5,
+      color: "#cccccc",
+    },
+    price: {
+      backgroundColor: "black",
+      color: "white",
+      padding: 15,
+      width: 100,
+      textAlign: "center",
+      fontSize: 18,
+      marginBottom: 20,
     },
   });
 
